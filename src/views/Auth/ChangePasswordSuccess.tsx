@@ -1,5 +1,12 @@
-import { Dimensions, Image, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import {
+  BackHandler,
+  Dimensions,
+  Image,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import React, { useEffect } from "react";
 import AppColors from "../../constants/App_colors";
 import { AppAssets } from "../../assets/app_assets";
 import AppText from "../../components/AppText";
@@ -10,6 +17,20 @@ import { useNavigation } from "@react-navigation/native";
 
 const ChangePasswordSuccess = () => {
   const nav: any = useNavigation();
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        nav.reset({
+          index: 0,
+          routes: [{ name: "login" }],
+        });
+        return true;
+      }
+    );
+
+    return () => backHandler.remove();
+  }, []);
   return (
     <View style={styles.mainView}>
       <View style={styles.lockBgContainer}>

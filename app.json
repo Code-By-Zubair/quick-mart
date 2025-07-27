@@ -2,6 +2,10 @@
   "expo": {
     "name": "Quick-Mart",
     "slug": "Quick-Mart",
-    "version": "1.0.0"
+    "version": "1.0.0",
+      "android": {
+        "package": "com.quickmart",
+        "googleServicesFile": "./google-services.json"
+      }
   }
 }

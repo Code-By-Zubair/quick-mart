@@ -1,5 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { use, useEffect, useRef, useState } from "react";
 import {
+  BackHandler,
   Dimensions,
   FlatList,
   Keyboard,
@@ -79,6 +80,22 @@ const ForgotPasswordScreen = () => {
       setValidConfirmPassword("");
     }
   };
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        if (currentStep > 0) {
+          changePage(currentStep - 1);
+          return true;
+        } else {
+          nav.goBack();
+          return true;
+        }
+      }
+    );
+    return () => backHandler.remove();
+  }, [currentStep]);
+
   const confirmationEmailForm = (
     <View style={{ width: Dimensions.get("window").width - 32 }}>
       <AppText text="Confirmation Email" customStyle={styles.bodyHeading} />
@@ -171,6 +188,7 @@ const ForgotPasswordScreen = () => {
           }
         }}
         onsubmitEditing={() => {
+          // focus on confirm password input
           if (confirmPasswordRef.current) {
             confirmPasswordRef.current.focus();
           }
