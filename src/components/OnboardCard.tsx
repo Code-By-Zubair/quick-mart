@@ -4,6 +4,8 @@ import React from 'react'
 import AppColors from '../constants/App_colors';
 import { AppAssets } from '../assets/app_assets';
 import { AppSvgs } from '../assets/app_svgs';
+import AppText from './AppText';
+import { AppFonts } from '../assets/AppFonts';
 
 // prop for item
 interface OnboardCardProps {
@@ -14,7 +16,7 @@ interface OnboardCardProps {
     };
     currentPage: number;
     handlePrevFunc: CallableFunction;
-    skipFunc?: CallableFunction;
+    skipFunc: CallableFunction;
 
 }
 
@@ -31,10 +33,8 @@ const OnboardCard = ({ item, currentPage, handlePrevFunc, skipFunc }: OnboardCar
                     </TouchableOpacity>}
                     {currentPage != 2 && <TouchableOpacity
                         activeOpacity={0.5}
-                        onPress={() => skipFunc}>
-                        <Text style={styles.skipText}>
-                            Skip
-                        </Text>
+                        onPress={() => skipFunc()}>
+                        <AppText text='Skip' customStyle={styles.skipText} />
                     </TouchableOpacity>}
 
                 </View>
@@ -42,8 +42,8 @@ const OnboardCard = ({ item, currentPage, handlePrevFunc, skipFunc }: OnboardCar
                     source={item.image}
                 ></Image>
             </View>
-            <Text style={styles.onboardHeading}>{item.heading}</Text>
-            <Text style={styles.onboardDesc}>{item.description}</Text>
+            <AppText text={item.heading} customStyle={styles.onboardHeading} />
+            <AppText text={item.description} customStyle={styles.onboardDesc} />
 
         </View>
     )
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     skipText: {
         color: AppColors.primary,
         fontSize: 14,
-        fontWeight: '500',
+        fontFamily: AppFonts.JakartaMedium,
     },
     imageBgContainer: {
         width: '90%',
@@ -85,16 +85,16 @@ const styles = StyleSheet.create({
     },
     onboardHeading: {
         fontSize: 24,
-        fontWeight: 'bold',
         color: AppColors.secondary,
         width: '85%',
         textAlign: 'center',
         alignSelf: 'center',
         marginBottom: 16,
+        fontFamily: AppFonts.JakartaBold,
     },
     onboardDesc: {
         fontSize: 14,
-        fontWeight: '400',
+        fontFamily: AppFonts.JakartaRegular,
         color: AppColors.grey150,
         width: '85%',
         textAlign: 'center',
