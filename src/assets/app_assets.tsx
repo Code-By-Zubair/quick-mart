@@ -8,4 +8,8 @@ export const AppAssets = {
   error: require("./Images/error.png"),
   info: require("./Images/info.png"),
   lock: require("./Images/lock.png"),
+  profile: require("./Images/profile.png"),
+  headphones: require("./Images/headphones.png"),
+  shoe: require("./Images/shoe.png"),
+  glasses: require("./Images/glasses.png"),
 };

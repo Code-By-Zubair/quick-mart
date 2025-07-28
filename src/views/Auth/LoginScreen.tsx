@@ -20,6 +20,14 @@ import AppInputField from "../../components/AppInputField";
 import AppButton from "../../components/app_button";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useNavigation } from "@react-navigation/native";
+import auth, {
+  createUserWithEmailAndPassword,
+  getAuth,
+  signInAnonymously,
+  signInWithEmailAndPassword,
+} from "@react-native-firebase/auth";
+import AuthService from "../../data/services/AuthService";
+import { Toast } from "react-native-toast-message/lib/src/Toast";
 
 const LoginScreen = () => {
   const nav: any = useNavigation();
@@ -27,6 +35,7 @@ const LoginScreen = () => {
   const [password, setPassword] = React.useState("");
   const [validEmail, setValidEmail] = React.useState("");
   const [validPassword, setValidPassword] = React.useState("");
+  const [isLoading, setIsLoading] = React.useState(false);
   const passwordRef = useRef(null);
   useEffect(() => {
     // Validate email and password
@@ -135,7 +144,32 @@ const LoginScreen = () => {
               <AppButton
                 title="Login"
                 customStyle={{ width: "100%" }}
-                onPress={() => {}}
+                isLoading={isLoading}
+                onPress={async () => {
+                  try {
+                    if (
+                      validEmail.length > 0 ||
+                      validPassword.length > 0 ||
+                      email.length === 0 ||
+                      password.length === 0
+                    ) {
+                      return;
+                    }
+                    setIsLoading(true);
+                    const user = await AuthService.signIn(email, password);
+                    if (user) {
+                      nav.reset({
+                        index: 0,
+                        routes: [{ name: "Home" }],
+                      });
+                    }
+                  } catch (error) {
+                    console.error("Login error:", error);
+                  } finally {
+                    setIsLoading(false);
+                    resetStates();
+                  }
+                }}
               />
             </View>
             <View

@@ -16,6 +16,8 @@ import AppInputField from "../../components/AppInputField";
 import SizedBoxView from "../../components/sized_box_view";
 import AppButton from "../../components/app_button";
 import React, { useState } from "react";
+import AuthService from "../../data/services/AuthService";
+import { Toast } from "react-native-toast-message/lib/src/Toast";
 
 const SignupScreen = () => {
   const nav: any = useNavigation();
@@ -25,8 +27,17 @@ const SignupScreen = () => {
   const [validUsername, setValidUsername] = useState("");
   const [validEmail, setValidEmail] = useState("");
   const [validPassword, setValidPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const passwordRef = React.useRef(null);
   const emailRef = React.useRef(null);
+  const resetStates = () => {
+    setEmail("");
+    setFullName("");
+    setPassword("");
+    setValidUsername("");
+    setValidEmail("");
+    setValidPassword("");
+  };
   React.useEffect(() => {
     // Validate email and password
     if (fullName.length > 0) {
@@ -129,7 +140,25 @@ const SignupScreen = () => {
           <AppButton
             title="Create Account"
             customStyle={{ width: "100%" }}
-            onPress={() => {}}
+            isLoading={isLoading}
+            onPress={async () => {
+              try {
+                if (validEmail.length > 0 || validPassword.length > 0) {
+                  return;
+                }
+                setIsLoading(true);
+                await AuthService.createAccount(email, password, fullName);
+              } catch (error) {
+                console.error("Signup failed: ", error);
+                Toast.show({
+                  type: "error",
+                  text1: "Signup failed",
+                });
+              } finally {
+                setIsLoading(false);
+                resetStates();
+              }
+            }}
           />
           <SizedBoxView height={50} />
         </KeyboardAwareScrollView>

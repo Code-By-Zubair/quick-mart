@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   StyleProp,
   StyleSheet,
   Text,
@@ -13,18 +14,29 @@ import { AppFonts } from "../assets/AppFonts";
 // props for the button
 interface AppButtonProps {
   title: string;
+  isLoading?: boolean;
   onPress: () => void;
   customStyle?: StyleProp<ViewStyle>;
 }
 
-const AppButton = ({ title, onPress, customStyle }: AppButtonProps) => {
+const AppButton = ({
+  title,
+  onPress,
+  customStyle,
+  isLoading,
+}: AppButtonProps) => {
   return (
     <TouchableOpacity
       activeOpacity={0.7}
       style={[styles.onboardButton, customStyle]}
       onPress={onPress}
+      disabled={isLoading}
     >
-      <Text style={styles.titleText}>{title}</Text>
+      {isLoading ? (
+        <ActivityIndicator size={"large"} color={AppColors.white} />
+      ) : (
+        <Text style={styles.titleText}>{title}</Text>
+      )}
     </TouchableOpacity>
   );
 };

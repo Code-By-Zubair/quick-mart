@@ -11,7 +11,7 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <StatusBar style="auto" translucent={true} />
+      <StatusBar style="dark" translucent={true} />
       <SizedBoxView height={50} />
       <AppStackNavigator />
       <Toast config={toastConfig} />

@@ -1,20 +1,14 @@
-
-
-import { View, Text } from 'react-native'
-import React from 'react'
+import { View, Text } from "react-native";
+import React from "react";
 
 // prop for height and width
 interface SizedBoxProps {
-    height?: number;
-    width?: number;
+  height?: number;
+  width?: number;
 }
 
 const SizedBoxView = ({ height, width }: SizedBoxProps) => {
-    return (
-        <View style={{ height, width }}>
+  return <View style={{ height, width, backgroundColor: "white" }}></View>;
+};
 
-        </View>
-    )
-}
-
-export default SizedBoxView
+export default SizedBoxView;
