@@ -66,6 +66,7 @@ export default ChangePasswordSuccess;
 
 const styles = StyleSheet.create({
   mainView: {
+    paddingTop: 50,
     flex: 1,
     paddingHorizontal: 16,
     backgroundColor: AppColors.background,

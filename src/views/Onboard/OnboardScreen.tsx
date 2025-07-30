@@ -167,10 +167,7 @@ const OnboardScreen = () => {
 export default OnboardScreen;
 
 const styles = StyleSheet.create({
-  mainView: {
-    flex: 1,
-    backgroundColor: AppColors.background,
-  },
+  mainView: { paddingTop: 50, flex: 1, backgroundColor: AppColors.background },
   loginBtn: {
     alignItems: "center",
     justifyContent: "center",

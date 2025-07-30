@@ -6,12 +6,13 @@ import {
   ImageBackground,
   ImageSourcePropType,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import React from "react";
+import React, { use, useEffect } from "react";
 import AppColors from "../../constants/App_colors";
 import { AppAssets } from "../../assets/app_assets";
 import { AppSvgs } from "../../assets/app_svgs";
@@ -22,6 +23,18 @@ import { ExpandingDot } from "react-native-animated-pagination-dots";
 import DashboardCarousel from "../../components/DashboardCarousel";
 import CategoryComponent from "../../components/CategoryComponent";
 import DashboardLatestProductItem from "../../components/DashboardLatestProductItem";
+import {
+  fetchProductsByListOfIds,
+  getCategoriesSnapshot,
+  getFiveCategoriesSnapshot,
+  getLatestProductsSnapshot,
+  getProductAdvertisementsSnapshot,
+  getUserCart,
+  getUserFavoritesSnapshot,
+  toggleFavoriteProduct,
+} from "../../data/services/FireStoreService";
+import { useNavigation } from "@react-navigation/native";
+import { ProductTypes } from "../../types/ProductTypes";
 
 export interface LatesProduct {
   image: ImageSourcePropType;
@@ -33,45 +46,69 @@ export interface LatesProduct {
 }
 
 const DashboardScreen = () => {
-  const categories = [
-    { label: "Electronics", emoji: "📱" },
-    { label: "Fashion", emoji: "👜" },
-    { label: "Furniture", emoji: "🛋️" },
-    { label: "Industrial", emoji: "🚗" },
-  ];
-  const products = [
-    {
-      image: AppAssets.headphones,
-      colors: ["#FF5733", "#33FF57", "#3357FF"],
-      title: "Wireless Headphones",
-      price: "$199.99",
-      discountedPrice: "$149.99",
-      isFavorite: false,
-    },
-    {
-      image: AppAssets.glasses,
-      colors: [
-        "#FF5733",
-        "#33FF57",
-        "#3357FF",
-        "#FF5733",
-        "#33FF57",
-        "#3357FF",
-      ],
-      title: "Stylish Sunglasses Stylish Sunglasses",
-      price: "$89.99",
-      discountedPrice: "$69.99",
-      isFavorite: true,
-    },
-    {
-      image: AppAssets.shoe,
-      colors: ["#FF5733", "#33FF57", "#3357FF"],
-      title: "Running Shoes",
-      price: "$129.99",
-      discountedPrice: "$99.99",
-      isFavorite: false,
-    },
-  ];
+  const nav: any = useNavigation();
+  const [advProducts, setAdvProducts] = React.useState([]);
+  const [loadingAds, setLoadingAds] = React.useState(true);
+  const [fbcategories, setCategories] = React.useState([]);
+  const [loadingCategories, setLoadingCategories] = React.useState(true);
+  const [fbproducts, setProducts] = React.useState<ProductTypes[]>([]);
+  const [loadingProducts, setLoadingProducts] = React.useState(true);
+  const [userFavorites, setUserFavorites] = React.useState<string[]>([]);
+  useEffect(() => {
+    try {
+      const unsubscribe = getFiveCategoriesSnapshot((fetchedCategories) => {
+        setCategories(fetchedCategories);
+        getUserCart().then((cartItems) => {
+          console.log("Cart items fetched successfully:", cartItems);
+        });
+      });
+      return () => unsubscribe();
+    } catch (error) {
+      console.error("Error fetching categories: ", error);
+    } finally {
+      setTimeout(() => {
+        setLoadingCategories(false);
+      }, 1000);
+    }
+  }, []);
+  useEffect(() => {
+    try {
+      setLoadingAds(true);
+      const unsubscribe = getProductAdvertisementsSnapshot((fetchedAds) => {
+        setAdvProducts(fetchedAds);
+        setLoadingAds(false);
+      });
+      return () => unsubscribe();
+    } catch (error) {
+      setLoadingAds(false);
+      console.error("Error fetching product advertisements: ", error);
+    }
+  }, []);
+  useEffect(() => {
+    try {
+      const unsubscribe = getLatestProductsSnapshot((fetchedProducts) => {
+        setProducts(fetchedProducts);
+      });
+      return () => unsubscribe();
+    } catch (error) {
+      console.error("Error in DashboardScreen useEffect: ", error);
+    } finally {
+      setTimeout(() => {
+        setLoadingCategories(false);
+      }, 1000);
+    }
+  }, [userFavorites]);
+  useEffect(() => {
+    try {
+      const unsubscribe = getUserFavoritesSnapshot((favorites) => {
+        setUserFavorites(favorites);
+      });
+      return () => unsubscribe();
+    } catch (error) {
+      console.error("Error fetching user favorites: ", error);
+    }
+  }, []);
+
   return (
     <View style={styles.mainView}>
       <View style={styles.appBar}>
@@ -83,48 +120,106 @@ const DashboardScreen = () => {
       </View>
       <SizedBoxView height={24} />
       <ScrollView overScrollMode="never">
-        <DashboardCarousel />
+        {advProducts.length > 0 && <DashboardCarousel ads={advProducts} />}
         <SizedBoxView height={24} />
-        <View style={styles.categoryHeadView}>
-          <AppText text="Categories" customStyle={styles.categoryHeadText} />
-          <TouchableOpacity onPress={() => {}}>
-            <AppText text="SEE ALL" customStyle={styles.seeAllText} />
-          </TouchableOpacity>
-        </View>
-        <SizedBoxView height={12} />
-        <FlatList
-          data={categories}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16 }}
-          overScrollMode="never"
-          ItemSeparatorComponent={() => <SizedBoxView width={16} />}
-          renderItem={({ item, index }) => (
-            <CategoryComponent item={item} key={index} onPress={() => {}} />
-          )}
-          keyExtractor={(index) => index.toString()}
-        />
-        <SizedBoxView height={24} />
+        {loadingCategories && fbcategories.length === 0 ? (
+          // loading indicator
+          <View style={{ alignItems: "center", marginTop: 16 }}>
+            <AppText
+              text="Loading categories..."
+              customStyle={{ color: AppColors.secondary }}
+            />
+          </View>
+        ) : !loadingCategories && fbcategories.length == 0 ? (
+          <View style={{ alignItems: "center", marginTop: 16 }}>
+            <AppText
+              text="No categories available"
+              customStyle={{ color: AppColors.secondary }}
+            />
+          </View>
+        ) : (
+          <View>
+            <View style={styles.categoryHeadView}>
+              <AppText
+                text="Categories"
+                customStyle={styles.categoryHeadText}
+              />
+              <TouchableOpacity
+                onPress={() => {
+                  nav.navigate("categories");
+                }}
+              >
+                <AppText text="SEE ALL" customStyle={styles.seeAllText} />
+              </TouchableOpacity>
+            </View>
+            <SizedBoxView height={12} />
+            <FlatList
+              data={fbcategories}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 16 }}
+              overScrollMode="never"
+              ItemSeparatorComponent={() => <SizedBoxView width={16} />}
+              renderItem={({ item }) => (
+                <CategoryComponent
+                  item={item}
+                  key={item.id}
+                  onPress={() => {
+                    nav.navigate("products", {
+                      categoryId: item.id,
+                    });
+                  }}
+                />
+              )}
+              keyExtractor={(item) => item.id}
+            />
+            <SizedBoxView height={24} />
+          </View>
+        )}
+
         <View style={styles.categoryHeadView}>
           <AppText
             text="Latest Products"
             customStyle={styles.categoryHeadText}
           />
-          <TouchableOpacity onPress={() => {}}>
+          <TouchableOpacity
+            onPress={() => {
+              nav.navigate("products");
+            }}
+          >
             <AppText text="SEE ALL" customStyle={styles.seeAllText} />
           </TouchableOpacity>
         </View>
         <SizedBoxView height={12} />
         <FlatList
-          data={products}
+          data={fbproducts}
           numColumns={2}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
           overScrollMode="never"
-          renderItem={({ item, index }) => (
-            <DashboardLatestProductItem item={item} key={index} />
+          renderItem={({ item }) => (
+            <DashboardLatestProductItem
+              item={item}
+              key={item.id}
+              isFavorite={userFavorites.some(
+                (fav: any) => fav.productId === item.id
+              )}
+              onFavTap={() => {
+                toggleFavoriteProduct(item.id);
+              }}
+              onPress={() => {
+                nav.navigate("productDetails", {
+                  productDetails: {
+                    ...item,
+                    isFavorite: userFavorites.some(
+                      (fav: any) => fav.productId === item.id
+                    ),
+                  },
+                });
+              }}
+            />
           )}
-          keyExtractor={(index) => index.toString()}
+          keyExtractor={(item) => item.id}
         />
       </ScrollView>
     </View>
@@ -133,10 +228,7 @@ const DashboardScreen = () => {
 export default DashboardScreen;
 
 const styles = StyleSheet.create({
-  mainView: {
-    flex: 1,
-    backgroundColor: AppColors.background,
-  },
+  mainView: { paddingTop: 50, flex: 1, backgroundColor: AppColors.background },
   appBar: {
     flexDirection: "row",
     justifyContent: "space-between",

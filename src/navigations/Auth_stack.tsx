@@ -23,11 +23,11 @@ export default function AuthStackNavigator() {
       <AuthStack.Screen name="login" component={LoginScreen} />
       <AuthStack.Screen name="signup" component={SignupScreen} />
       <AuthStack.Screen
-        name="forgot-password"
+        name="forgotPassword"
         component={ForgotPasswordScreen}
       />
       <AuthStack.Screen
-        name="change-password-success"
+        name="changePasswordSuccess"
         component={ChangePasswordSuccess}
       />
     </AuthStack.Navigator>

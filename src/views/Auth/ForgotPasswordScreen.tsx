@@ -315,7 +315,7 @@ const ForgotPasswordScreen = () => {
                 case 2:
                   nav.reset({
                     index: 0,
-                    routes: [{ name: "change-password-success" }],
+                    routes: [{ name: "changePasswordSuccess" }],
                   });
                 default:
                   break;
@@ -331,6 +331,7 @@ export default ForgotPasswordScreen;
 
 const styles = StyleSheet.create({
   mainView: {
+    paddingTop: 50,
     backgroundColor: AppColors.background,
     flex: 1,
     // paddingHorizontal: 16,

@@ -2,136 +2,156 @@ import {
   Dimensions,
   ImageBackground,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import React from "react";
 import { AppSvgs } from "../assets/app_svgs";
 import AppColors from "../constants/App_colors";
-import { LatesProduct } from "../views/Dashboard/DashboardScreen";
 import AppText from "./AppText";
 import { AppFonts } from "../assets/AppFonts";
+import { ProductTypes } from "../types/ProductTypes";
+import { AppAssets } from "../assets/app_assets";
 
-const DashboardLatestProductItem = ({ item }: { item: LatesProduct }) => {
+const DashboardLatestProductItem = ({
+  item,
+  isFavorite,
+  onFavTap,
+  onPress = () => {},
+}: {
+  item: ProductTypes;
+  isFavorite: boolean;
+  onFavTap: () => void;
+  onPress?: () => void;
+}) => {
   const [selectedColor, setSelectedColor] = React.useState(item.colors[0]);
-  const [isfavorite, setIsFavorite] = React.useState(item.isFavorite);
-
   return (
-    <View
-      style={{
-        borderColor: AppColors.grey50,
-        borderWidth: 1,
-        borderRadius: 24,
-        marginBottom: 16,
-        paddingBottom: 10,
-        marginRight: 16,
-      }}
-    >
-      <ImageBackground
-        source={item.image}
-        style={{
-          height: 138,
-          width: (Dimensions.get("window").width - 48) / 2,
-          //   marginRight: 16,
-          borderRadius: 24,
-          overflow: "hidden",
-        }}
-      >
-        <TouchableOpacity
-          style={{
-            position: "absolute",
-            top: 6,
-            right: 6,
-            backgroundColor: AppColors.secondary,
-            borderRadius: 50,
-            padding: 6,
-            width: 30,
-            height: 30,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          onPress={() => {
-            setIsFavorite(!isfavorite);
-          }}
-        >
-          {isfavorite ? <AppSvgs.favouritefilled /> : <AppSvgs.Favourite />}
-        </TouchableOpacity>
-      </ImageBackground>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
       <View
         style={{
-          flexDirection: "row",
-          alignItems: "center",
+          borderColor: AppColors.grey50,
+          borderWidth: 1,
+          borderRadius: 24,
+          marginBottom: 16,
+          paddingBottom: 10,
+          marginRight: 16,
         }}
       >
-        <View style={styles.container}>
-          {item.colors.slice(0, 3).map((color, index) => (
-            <TouchableOpacity
-              onPress={() => setSelectedColor(color)}
-              activeOpacity={0.7}
-              key={index}
-              style={[
-                styles.circle,
-                {
-                  backgroundColor: color,
-                  marginLeft: index === 0 ? 0 : -6,
-                  borderWidth: color === selectedColor ? 3 : 0,
-                  borderColor:
-                    color === selectedColor ? "#2196F3" : "transparent",
-                  elevation: color === selectedColor ? 5 : 0,
-                  shadowColor: color === selectedColor ? "#2196F3" : "#000",
-                },
-              ]}
-            />
-          ))}
+        <ImageBackground
+          source={
+            item.images.length > 0
+              ? { uri: item.images[0] }
+              : AppAssets.imagePlaceholder
+          }
+          style={{
+            height: 138,
+            width: (Dimensions.get("window").width - 48) / 2,
+            borderRadius: 24,
+            overflow: "hidden",
+          }}
+        >
+          <TouchableOpacity
+            style={{
+              position: "absolute",
+              top: 6,
+              right: 6,
+              backgroundColor: AppColors.secondary,
+              borderRadius: 50,
+              padding: 6,
+              width: 30,
+              height: 30,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            onPress={onFavTap}
+          >
+            {isFavorite ? <AppSvgs.favouritefilled /> : <AppSvgs.Favourite />}
+          </TouchableOpacity>
+        </ImageBackground>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+          }}
+        >
+          {item.colors.length > 0 && (
+            <View>
+              <View style={styles.container}>
+                {item.colors
+                  .slice(0, item.colors.length > 4 ? 3 : item.colors.length)
+                  .map((color, index) => (
+                    <TouchableOpacity
+                      onPress={() => setSelectedColor(color)}
+                      activeOpacity={0.7}
+                      key={index}
+                      style={[
+                        styles.circle,
+                        {
+                          backgroundColor: color,
+                          marginLeft: index === 0 ? 0 : -6,
+                          borderWidth: color === selectedColor ? 3 : 0.5,
+                          borderColor:
+                            color === selectedColor
+                              ? "#2196F3"
+                              : AppColors.grey100,
+                          elevation: color === selectedColor ? 5 : 0,
+                          shadowColor:
+                            color === selectedColor ? "#2196F3" : "#000",
+                        },
+                      ]}
+                    />
+                  ))}
+              </View>
+              {item.colors.length > 3 && (
+                <AppText
+                  text={`+${item.colors.length - 3} more`}
+                  customStyle={{
+                    color: AppColors.secondary,
+                    fontSize: 10,
+                    marginLeft: 8,
+                    textDecorationLine: "underline",
+                  }}
+                />
+              )}
+            </View>
+          )}
         </View>
-        {item.colors.length > 3 && (
+        <View style={{ width: (Dimensions.get("window").width - 48) / 2 }}>
           <AppText
-            text={`+${item.colors.length - 3} more`}
+            text={item.name}
+            numberOfLines={1}
             customStyle={{
+              fontSize: 14,
               color: AppColors.secondary,
+              fontFamily: AppFonts.JakartaBold,
+              paddingLeft: 10,
+            }}
+          />
+        </View>
+
+        <AppText
+          text={`$${item?.price?.toString() ?? ""}`}
+          customStyle={{
+            fontSize: 12,
+            color: AppColors.secondary,
+            fontFamily: AppFonts.JakartaSemiBold,
+            paddingLeft: 10,
+          }}
+        />
+        {item.discountedPrice && (
+          <AppText
+            text={`$${item?.discountedPrice?.toString() ?? ""}`}
+            customStyle={{
               fontSize: 10,
-              marginLeft: 8,
-              textDecorationLine: "underline",
+              color: AppColors.grey100,
+              fontFamily: AppFonts.JakartaRegular,
+              textDecorationLine: "line-through",
+              paddingLeft: 10,
             }}
           />
         )}
       </View>
-      <View style={{ width: (Dimensions.get("window").width - 48) / 2 }}>
-        <AppText
-          text={item.title}
-          numberOfLines={1}
-          customStyle={{
-            fontSize: 14,
-            color: AppColors.secondary,
-            fontFamily: AppFonts.JakartaBold,
-            paddingLeft: 10,
-          }}
-        />
-      </View>
-
-      <AppText
-        text={item.price}
-        customStyle={{
-          fontSize: 12,
-          color: AppColors.secondary,
-          fontFamily: AppFonts.JakartaSemiBold,
-          paddingLeft: 10,
-        }}
-      />
-      {item.discountedPrice && (
-        <AppText
-          text={item.discountedPrice}
-          customStyle={{
-            fontSize: 10,
-            color: AppColors.grey100,
-            fontFamily: AppFonts.JakartaRegular,
-            textDecorationLine: "line-through",
-            paddingLeft: 10,
-          }}
-        />
-      )}
-    </View>
+    </TouchableOpacity>
   );
 };
 

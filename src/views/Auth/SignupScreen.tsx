@@ -16,8 +16,8 @@ import AppInputField from "../../components/AppInputField";
 import SizedBoxView from "../../components/sized_box_view";
 import AppButton from "../../components/app_button";
 import React, { useState } from "react";
-import AuthService from "../../data/services/AuthService";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
+import { createAccount } from "../../data/services/AuthService";
 
 const SignupScreen = () => {
   const nav: any = useNavigation();
@@ -147,7 +147,7 @@ const SignupScreen = () => {
                   return;
                 }
                 setIsLoading(true);
-                await AuthService.createAccount(email, password, fullName);
+                await createAccount(email, password, fullName);
               } catch (error) {
                 console.error("Signup failed: ", error);
                 Toast.show({
@@ -171,6 +171,7 @@ export default SignupScreen;
 
 const styles = StyleSheet.create({
   mainView: {
+    paddingTop: 50,
     backgroundColor: AppColors.background,
     flex: 1,
     paddingHorizontal: 16,

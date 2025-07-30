@@ -1,6 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
+
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import SizedBoxView from './src/components/sized_box_view';
 import AppStackNavigator from './src/navigations/AppStack';
@@ -10,12 +10,14 @@ import { toastConfig } from './ToastConfig';
 export default function App() {
 
   return (
-    <NavigationContainer>
-      <StatusBar style="dark" translucent={true} />
-      <SizedBoxView height={50} />
-      <AppStackNavigator />
-      <Toast config={toastConfig} />
-    </NavigationContainer>
+    <View style={{ flex: 1 }}>
+      <StatusBar barStyle='dark-content' backgroundColor={'transparent'} translucent={true} />
+      <NavigationContainer>
+
+        <AppStackNavigator />
+        <Toast config={toastConfig} />
+      </NavigationContainer>
+    </View>
   );
 }
 

@@ -12,4 +12,7 @@ export const AppAssets = {
   headphones: require("./Images/headphones.png"),
   shoe: require("./Images/shoe.png"),
   glasses: require("./Images/glasses.png"),
+  imagePlaceholder: require("./Images/image_placeholder.png"),
+  start: require("./Images/start.png"),
+  emptyWishlist: require("./Images/wishlist_empty.png"),
 };

@@ -26,8 +26,8 @@ import auth, {
   signInAnonymously,
   signInWithEmailAndPassword,
 } from "@react-native-firebase/auth";
-import AuthService from "../../data/services/AuthService";
 import { Toast } from "react-native-toast-message/lib/src/Toast";
+import { signIn } from "../../data/services/AuthService";
 
 const LoginScreen = () => {
   const nav: any = useNavigation();
@@ -131,7 +131,7 @@ const LoginScreen = () => {
                 activeOpacity={0.7}
                 style={styles.forgotPasswordTap}
                 onPress={() => {
-                  nav.navigate("forgot-password");
+                  nav.navigate("forgotPassword");
                   resetStates();
                 }}
               >
@@ -156,11 +156,11 @@ const LoginScreen = () => {
                       return;
                     }
                     setIsLoading(true);
-                    const user = await AuthService.signIn(email, password);
+                    const user = await signIn(email, password);
                     if (user) {
                       nav.reset({
                         index: 0,
-                        routes: [{ name: "Home" }],
+                        routes: [{ name: "home" }],
                       });
                     }
                   } catch (error) {
@@ -199,6 +199,7 @@ export default LoginScreen;
 
 const styles = StyleSheet.create({
   mainView: {
+    paddingTop: 50,
     backgroundColor: AppColors.background,
     flex: 1,
     paddingHorizontal: 16,
