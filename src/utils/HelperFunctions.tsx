@@ -1,5 +1,3 @@
-// make function to select random colors
-
 import AppColors from "../constants/App_colors";
 
 const getRandomColor = () => {

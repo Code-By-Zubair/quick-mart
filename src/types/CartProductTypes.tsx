@@ -1,8 +1,9 @@
 import { ProductTypes } from "./ProductTypes";
 
-interface CartProductTypes {
+export interface CartProductTypes {
   productDetails: ProductTypes;
   quantity: number;
-  color: string;
-  size: string;
+  color?: string;
+  size?: string;
+  id: string; // Unique identifier for the cart item
 }

@@ -114,7 +114,6 @@ const ProductDetailsScreen = () => {
                   color: AppColors.secondary,
                 }}
               />
-              // discounted price
               {productDetails.discountedPrice && (
                 <AppText
                   text={`$${productDetails.discountedPrice}`}

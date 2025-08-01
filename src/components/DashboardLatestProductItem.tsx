@@ -80,23 +80,17 @@ const DashboardLatestProductItem = ({
                 {item.colors
                   .slice(0, item.colors.length > 4 ? 3 : item.colors.length)
                   .map((color, index) => (
-                    <TouchableOpacity
-                      onPress={() => setSelectedColor(color)}
-                      activeOpacity={0.7}
+                    <View
                       key={index}
                       style={[
                         styles.circle,
                         {
                           backgroundColor: color,
                           marginLeft: index === 0 ? 0 : -6,
-                          borderWidth: color === selectedColor ? 3 : 0.5,
-                          borderColor:
-                            color === selectedColor
-                              ? "#2196F3"
-                              : AppColors.grey100,
-                          elevation: color === selectedColor ? 5 : 0,
-                          shadowColor:
-                            color === selectedColor ? "#2196F3" : "#000",
+                          borderWidth: 0.5,
+                          borderColor: AppColors.grey100,
+                          elevation: 5,
+                          shadowColor: "#000",
                         },
                       ]}
                     />

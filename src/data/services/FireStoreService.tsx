@@ -2,6 +2,7 @@ import firestore from "@react-native-firebase/firestore";
 import Toast from "react-native-toast-message";
 import auth from "@react-native-firebase/auth";
 
+const userId = auth().currentUser?.uid;
 const usersCollection = firestore().collection("users");
 const categoriesCollection = firestore().collection("categories");
 const productAdvertisementsCollection = firestore().collection(
@@ -88,7 +89,6 @@ const getAllProductsSnapshot = (
 // add or remove product from favorites
 const toggleFavoriteProduct = async (productId: string) => {
   try {
-    const userId = auth().currentUser?.uid;
     const data = wishListCollection
       .where("productId", "==", productId)
       .where("userId", "==", userId);
@@ -116,7 +116,6 @@ const toggleFavoriteProduct = async (productId: string) => {
 
 // get user favourites stream
 const getUserFavoritesSnapshot = (callback: (favorites: any[]) => void) => {
-  const userId = auth().currentUser?.uid;
   if (!userId) {
     console.error("User not authenticated");
     return;
@@ -136,7 +135,7 @@ const getUserFavoritesSnapshot = (callback: (favorites: any[]) => void) => {
 const fetchProductsByListOfIds = async () => {
   try {
     // fetch user favorites
-    const userId = auth().currentUser?.uid;
+
     if (!userId) {
       throw new Error("User not authenticated");
     }
@@ -164,7 +163,6 @@ const addProductToCart = async (
   quantity: number
 ) => {
   try {
-    const userId = auth().currentUser?.uid;
     if (!userId) {
       throw new Error("User not authenticated");
     }
@@ -209,7 +207,6 @@ const addProductToCart = async (
 
 const getUserCart = async () => {
   try {
-    const userId = auth().currentUser?.uid;
     if (!userId) {
       throw new Error("User not authenticated");
     }
@@ -218,7 +215,7 @@ const getUserCart = async () => {
       .get();
     const cartItems = cartSnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...(doc.data() as { [key: string]: any }),
+      ...doc.data(),
     }));
     // return cartItems;
     //get product details for each cart item
@@ -227,6 +224,7 @@ const getUserCart = async () => {
         const productDoc = await productsCollection.doc(item.productId).get();
         if (productDoc.exists) {
           return {
+            id: item.id,
             ...item,
             productDetails: { id: productDoc.id, ...productDoc.data() },
           };
@@ -235,10 +233,27 @@ const getUserCart = async () => {
         }
       })
     );
+    console.log("fetched user cart: ", products);
     return products.filter((item) => item !== null); // filter out null items
   } catch (error) {
     console.error("Error fetching user cart: ", error);
     throw error;
+  }
+};
+const updateCartItemQuantity = async (cartItemId: string, quantity: number) => {
+  try {
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+    console.log("Updating cart item: ", cartItemId, " to quantity: ", quantity);
+    const cartItemRef = cartCollection.doc(cartItemId);
+    await cartItemRef.update({ quantity });
+  } catch (error) {
+    console.error("Error updating cart item quantity: ", error);
+    Toast.show({
+      type: "error",
+      text1: "Error updating cart item quantity",
+    });
   }
 };
 
@@ -254,4 +269,5 @@ export {
   fetchProductsByListOfIds,
   addProductToCart,
   getUserCart,
+  updateCartItemQuantity,
 };

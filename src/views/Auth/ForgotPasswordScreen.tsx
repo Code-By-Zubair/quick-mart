@@ -188,7 +188,6 @@ const ForgotPasswordScreen = () => {
           }
         }}
         onsubmitEditing={() => {
-          // focus on confirm password input
           if (confirmPasswordRef.current) {
             confirmPasswordRef.current.focus();
           }
@@ -214,7 +213,6 @@ const ForgotPasswordScreen = () => {
           }
         }}
         onsubmitEditing={() => {
-          // close keyboard on submit
           if (confirmPasswordRef.current) {
             confirmPasswordRef.current.blur();
           }
@@ -289,7 +287,6 @@ const ForgotPasswordScreen = () => {
                       text1:
                         "6-digit verification code has been sent to your email address.",
                     });
-                    // send OTP here
                   } else {
                     Toast.show({
                       type: "error",
@@ -299,7 +296,6 @@ const ForgotPasswordScreen = () => {
                   break;
                 case 1:
                   if (code.length === 6) {
-                    // Verify OTP here
                     Toast.show({
                       type: "success",
                       text1: "OTP verified successfully.",
@@ -334,7 +330,6 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     backgroundColor: AppColors.background,
     flex: 1,
-    // paddingHorizontal: 16,
   },
   appBar: {
     flexDirection: "row",

@@ -38,7 +38,6 @@ const LoginScreen = () => {
   const [isLoading, setIsLoading] = React.useState(false);
   const passwordRef = useRef(null);
   useEffect(() => {
-    // Validate email and password
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (email.length != 0) {
       setValidEmail(!emailRegex.test(email) ? "Invalid Email" : "");
@@ -116,7 +115,6 @@ const LoginScreen = () => {
                 ref={passwordRef}
                 onChange={(text) => setPassword(text)}
                 onsubmitEditing={() => {
-                  // close keyboard on submit
                   if (passwordRef.current) {
                     passwordRef.current.blur();
                   }

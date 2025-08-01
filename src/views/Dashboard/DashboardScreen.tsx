@@ -1,14 +1,9 @@
 import {
-  Animated,
-  Dimensions,
   FlatList,
   Image,
-  ImageBackground,
   ImageSourcePropType,
   ScrollView,
-  StatusBar,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -24,12 +19,9 @@ import DashboardCarousel from "../../components/DashboardCarousel";
 import CategoryComponent from "../../components/CategoryComponent";
 import DashboardLatestProductItem from "../../components/DashboardLatestProductItem";
 import {
-  fetchProductsByListOfIds,
-  getCategoriesSnapshot,
   getFiveCategoriesSnapshot,
   getLatestProductsSnapshot,
   getProductAdvertisementsSnapshot,
-  getUserCart,
   getUserFavoritesSnapshot,
   toggleFavoriteProduct,
 } from "../../data/services/FireStoreService";
@@ -58,9 +50,6 @@ const DashboardScreen = () => {
     try {
       const unsubscribe = getFiveCategoriesSnapshot((fetchedCategories) => {
         setCategories(fetchedCategories);
-        getUserCart().then((cartItems) => {
-          console.log("Cart items fetched successfully:", cartItems);
-        });
       });
       return () => unsubscribe();
     } catch (error) {
@@ -123,7 +112,6 @@ const DashboardScreen = () => {
         {advProducts.length > 0 && <DashboardCarousel ads={advProducts} />}
         <SizedBoxView height={24} />
         {loadingCategories && fbcategories.length === 0 ? (
-          // loading indicator
           <View style={{ alignItems: "center", marginTop: 16 }}>
             <AppText
               text="Loading categories..."

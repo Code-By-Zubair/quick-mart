@@ -15,4 +15,5 @@ export const AppAssets = {
   imagePlaceholder: require("./Images/image_placeholder.png"),
   start: require("./Images/start.png"),
   emptyWishlist: require("./Images/wishlist_empty.png"),
+  cartEmpty: require("./Images/cart_empty.png"),
 };

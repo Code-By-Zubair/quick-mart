@@ -5,8 +5,12 @@ import {
   View,
   TouchableOpacity,
   ActivityIndicator,
+  Text,
+  Modal,
+  Dimensions,
+  Pressable,
 } from "react-native";
-import React, { use } from "react";
+import React, { use, useRef } from "react";
 import AppColors from "../../constants/App_colors";
 import AppbarWithTitle from "../../components/AppbarWithTitle";
 import {
@@ -20,12 +24,23 @@ import AppText from "../../components/AppText";
 import { AppFonts } from "../../assets/AppFonts";
 import { AppSvgs } from "../../assets/app_svgs";
 import AppButton from "../../components/app_button";
+import BottomSheet, {
+  BottomSheetView,
+  TouchableWithoutFeedback,
+} from "@gorhom/bottom-sheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import ProductDeleteModal from "../../components/ProductDeleteModal";
+import EmptyWishlistState from "../../components/EmptyWishlistState";
+import WishListItem from "../../components/WishListItem";
 
+const height = Dimensions.get("window").height;
 const WishlistScreen = () => {
   const nav: any = useNavigation();
+  const [showBottomSheet, setShowBottomSheet] = React.useState(false);
   const [wishlistItems, setWishlistItems] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
-
+  const [deletingProduct, setDeletingProduct] = React.useState(false);
+  const [productId, setProductId] = React.useState<string | null>(null);
   const getWishlistItems = async () => {
     const prod = await fetchProductsByListOfIds();
     setWishlistItems(prod);
@@ -48,47 +63,55 @@ const WishlistScreen = () => {
     }
   }, []);
 
+  const toggleBottomSheet = () => {
+    if (showBottomSheet) {
+      setShowBottomSheet(false);
+      setProductId(null);
+    } else {
+      setShowBottomSheet(true);
+    }
+  };
   return (
     <View style={styles.mainView}>
       <AppbarWithTitle title="Wishlist" />
-      {loading ? (
+
+      {showBottomSheet && (
+        <ProductDeleteModal
+          toggleBottomSheet={toggleBottomSheet}
+          deletingProduct={deletingProduct}
+          showBottomSheet={showBottomSheet}
+          onDelete={async () => {
+            try {
+              setDeletingProduct(true);
+              if (!productId) {
+                throw new Error("Product ID is not set");
+              }
+              await toggleFavoriteProduct(productId);
+            } catch (error) {
+              console.error("Error deleting product: ", error);
+            } finally {
+              setDeletingProduct(false);
+              setProductId(null);
+              setShowBottomSheet(false);
+              toggleBottomSheet();
+              getWishlistItems();
+            }
+          }}
+        />
+      )}
+
+      {loading && wishlistItems.length === 0 ? (
         <ActivityIndicator
           size={50}
           color={AppColors.primary}
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          style={styles.activityIndicator}
         />
       ) : !loading && wishlistItems.length === 0 ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <Image
-            source={AppAssets.emptyWishlist}
-            style={{ width: 240, height: 240 }}
-          />
-          <AppText
-            text="Your wishlist is empty"
-            customStyle={{
-              fontSize: 24,
-              color: AppColors.secondary,
-              fontFamily: AppFonts.JakartaBold,
-            }}
-          />
-          <AppText
-            text="Tap heart button to start saving your favorite items."
-            customStyle={{
-              fontSize: 14,
-              color: AppColors.grey150,
-              fontFamily: AppFonts.JakartaRegular,
-              textAlign: "center",
-              width: "50%",
-              marginBottom: 24,
-            }}
-          />
-          <AppButton
-            title="Explore Categories"
-            onPress={() => nav.navigate("categories")}
-          />
-        </View>
+        <EmptyWishlistState
+          heading="Your wishlist is empty"
+          body="Tap heart button to start saving your favorite items."
+          imageSource={AppAssets.emptyWishlist}
+        />
       ) : (
         <FlatList
           data={wishlistItems}
@@ -97,68 +120,19 @@ const WishlistScreen = () => {
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16 }}
           renderItem={({ item }: { item: ProductTypes }) => (
-            <View
-              style={{
-                flexDirection: "row",
-                borderRadius: 12,
-                gap: 8,
-                borderColor: AppColors.grey50,
-                borderWidth: 1,
-                padding: 8,
+            <WishListItem
+              item={item}
+              key={item.id}
+              onDelete={() => {
+                setProductId(item.id);
+                toggleBottomSheet();
               }}
-            >
-              <Image
-                source={
-                  item.images && item.images.length > 0
-                    ? { uri: item.images[0] }
-                    : AppAssets.imagePlaceholder
-                }
-                resizeMode="cover"
-                style={{
-                  flex: 1,
-                  height: 120,
-                  borderRadius: 12,
-                }}
-              />
-              <View style={{ flex: 2 }}>
-                <AppText
-                  text={item.name}
-                  numberOfLines={2}
-                  customStyle={{
-                    fontSize: 16,
-                    fontWeight: "bold",
-                    marginBottom: 8,
-                  }}
-                />
-                <AppText
-                  text={`$${item.price}`}
-                  customStyle={{
-                    fontSize: 12,
-                    color: AppColors.secondary,
-                    fontFamily: AppFonts.JakartaSemiBold,
-                  }}
-                />
-                <AppText
-                  text={`$${item.discountedPrice}`}
-                  customStyle={{
-                    fontSize: 10,
-                    color: AppColors.grey150,
-                    fontFamily: AppFonts.JakartaSemiBold,
-                    textDecorationLine: "line-through",
-                  }}
-                />
-
-                <TouchableOpacity
-                  onPress={async () => {
-                    await toggleFavoriteProduct(item.id);
-                    await getWishlistItems();
-                  }}
-                  style={{ position: "absolute", right: 0, bottom: 0 }}
-                >
-                  <AppSvgs.Delete />
-                </TouchableOpacity>
-              </View>
-            </View>
+              onPress={() => {
+                nav.navigate("ProductDetails", {
+                  productDetails: { ...item, isFavorite: true },
+                });
+              }}
+            />
           )}
         />
       )}
@@ -170,4 +144,9 @@ export default WishlistScreen;
 
 const styles = StyleSheet.create({
   mainView: { flex: 1, paddingTop: 50, backgroundColor: AppColors.background },
+  activityIndicator: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });

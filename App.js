@@ -6,18 +6,22 @@ import SizedBoxView from './src/components/sized_box_view';
 import AppStackNavigator from './src/navigations/AppStack';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from './ToastConfig';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function App() {
 
   return (
-    <View style={{ flex: 1 }}>
-      <StatusBar barStyle='dark-content' backgroundColor={'transparent'} translucent={true} />
-      <NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "grey" }}>
+      <View style={{ flex: 1 }}>
+        <StatusBar barStyle='dark-content' backgroundColor={'transparent'} translucent={true} />
+        <NavigationContainer>
 
-        <AppStackNavigator />
-        <Toast config={toastConfig} />
-      </NavigationContainer>
-    </View>
+          <AppStackNavigator />
+          <Toast config={toastConfig} />
+        </NavigationContainer>
+      </View>
+    </GestureHandlerRootView>
+
   );
 }
 

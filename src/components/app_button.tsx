@@ -3,6 +3,7 @@ import {
   StyleProp,
   StyleSheet,
   Text,
+  TextStyle,
   TouchableOpacity,
   View,
   ViewStyle,
@@ -17,6 +18,7 @@ interface AppButtonProps {
   isLoading?: boolean;
   onPress: () => void;
   customStyle?: StyleProp<ViewStyle>;
+  customTextStyle?: StyleProp<TextStyle>;
 }
 
 const AppButton = ({
@@ -24,6 +26,7 @@ const AppButton = ({
   onPress,
   customStyle,
   isLoading,
+  customTextStyle,
 }: AppButtonProps) => {
   return (
     <TouchableOpacity
@@ -35,7 +38,7 @@ const AppButton = ({
       {isLoading ? (
         <ActivityIndicator size={"large"} color={AppColors.white} />
       ) : (
-        <Text style={styles.titleText}>{title}</Text>
+        <Text style={[styles.titleText, customTextStyle]}>{title}</Text>
       )}
     </TouchableOpacity>
   );
@@ -52,7 +55,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 24,
   },
   titleText: {
     color: AppColors.white,

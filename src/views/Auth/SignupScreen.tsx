@@ -39,7 +39,6 @@ const SignupScreen = () => {
     setValidPassword("");
   };
   React.useEffect(() => {
-    // Validate email and password
     if (fullName.length > 0) {
       setValidUsername(
         fullName.length < 3 ? "Username must be at least 3 characters" : ""
@@ -109,7 +108,6 @@ const SignupScreen = () => {
             returnKeyType="next"
             onChange={(text) => setEmail(text)}
             onsubmitEditing={() => {
-              // close keyboard on submit
               if (passwordRef.current) {
                 passwordRef.current.focus();
               }
@@ -129,7 +127,6 @@ const SignupScreen = () => {
             ref={passwordRef}
             onChange={(text) => setPassword(text)}
             onsubmitEditing={() => {
-              // close keyboard on submit
               if (passwordRef.current) {
                 passwordRef.current.blur();
               }
