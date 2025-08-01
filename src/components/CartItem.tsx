@@ -4,7 +4,6 @@ import CheckBox from "@react-native-community/checkbox";
 import { AppAssets } from "../assets/app_assets";
 import { AppSvgs } from "../assets/app_svgs";
 import AppColors from "../constants/App_colors";
-import { updateCartItemQuantity } from "../data/services/FireStoreService";
 import AppText from "./AppText";
 import ProductQuantityComponent from "./ProductQuantityComponent";
 import { CartProductTypes } from "../types/CartProductTypes";
@@ -68,13 +67,6 @@ const CartItem = ({
             }}
             style={{ borderRadius: 20 }}
             onValueChange={onSelect}
-            // () => {
-            //   if (selectedItems.includes(item.id)) {
-            //     setSelectedItems((prev) => prev.filter((id) => id !== item.id));
-            //   } else {
-            //     setSelectedItems((prev) => [...prev, item.id]);
-            //   }
-            // }}
           />
         </View>
 
@@ -90,27 +82,7 @@ const CartItem = ({
           <ProductQuantityComponent
             quantity={item.quantity}
             decrementPressed={onDecrement}
-            // async (val) => {
-            //   await updateCartItemQuantity(item.id, val);
-            //   setCartItems((prevItems) =>
-            //     prevItems.map((cartItem) =>
-            //       cartItem.id === item.id
-            //         ? { ...cartItem, quantity: val }
-            //         : cartItem
-            //     )
-            //   );
-            // }}
             incrementPressed={onIncrement}
-            // async (val) => {
-            //   await updateCartItemQuantity(item.id, val);
-            //   setCartItems((prevItems) =>
-            //     prevItems.map((cartItem) =>
-            //       cartItem.id === item.id
-            //         ? { ...cartItem, quantity: val }
-            //         : cartItem
-            //     )
-            //   );
-            // }}
           />
           <TouchableOpacity onPress={onDelete}>
             <AppSvgs.Delete />

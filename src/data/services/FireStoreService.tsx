@@ -257,6 +257,21 @@ const updateCartItemQuantity = async (cartItemId: string, quantity: number) => {
   }
 };
 
+const deleteCartItem = async (cartItemId: string) => {
+  try {
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+    await cartCollection.doc(cartItemId).delete();
+  } catch (error) {
+    console.error("Error deleting cart item: ", error);
+    Toast.show({
+      type: "error",
+      text1: "Error deleting cart item",
+    });
+  }
+};
+
 export {
   addUser,
   getCategoriesSnapshot,
@@ -270,4 +285,5 @@ export {
   addProductToCart,
   getUserCart,
   updateCartItemQuantity,
+  deleteCartItem,
 };

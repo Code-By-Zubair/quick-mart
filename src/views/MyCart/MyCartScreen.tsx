@@ -1,28 +1,19 @@
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
 import React from "react";
 import AppbarWithTitle from "../../components/AppbarWithTitle";
 import AppColors from "../../constants/App_colors";
 import { AppAssets } from "../../assets/app_assets";
 import EmptyWishlistState from "../../components/EmptyWishlistState";
 import {
+  deleteCartItem,
   getUserCart,
   updateCartItemQuantity,
 } from "../../data/services/FireStoreService";
 import { useNavigation } from "@react-navigation/native";
 import { CartProductTypes } from "../../types/CartProductTypes";
-import { AppSvgs } from "../../assets/app_svgs";
 import AppText from "../../components/AppText";
 import { AppFonts } from "../../assets/AppFonts";
-import ProductQuantityComponent from "../../components/ProductQuantityComponent";
 import AppButton from "../../components/app_button";
-import CheckBox from "@react-native-community/checkbox";
 import CartItem from "../../components/CartItem";
 import ProductDeleteModal from "../../components/ProductDeleteModal";
 
@@ -33,6 +24,7 @@ const MyCartScreen = () => {
   const [selectedItems, setSelectedItems] = React.useState<string[]>([]);
   const [deletingProduct, setDeletingProduct] = React.useState<boolean>(false);
   const [showBottomSheet, setShowBottomSheet] = React.useState<boolean>(false);
+  const [selectedItem, setSelectedItem] = React.useState<string | null>(null);
   React.useEffect(() => {
     const fetchCartItems = async () => {
       try {
@@ -68,7 +60,23 @@ const MyCartScreen = () => {
         <ProductDeleteModal
           showBottomSheet={showBottomSheet}
           deletingProduct={deletingProduct}
-          onDelete={() => {}}
+          onDelete={async () => {
+            try {
+              setDeletingProduct(true);
+              if (selectedItem) {
+                await deleteCartItem(selectedItem);
+              }
+            } catch (error) {
+              console.error("Error deleting product: ", error);
+            } finally {
+              setTimeout(() => {
+                setDeletingProduct(false);
+                setShowBottomSheet(false);
+                setSelectedItem(null);
+                fetchCart();
+              }, 1000);
+            }
+          }}
           toggleBottomSheet={toggleBottomSheet}
         />
       )}
@@ -107,9 +115,9 @@ const MyCartScreen = () => {
                   }
                 }}
                 onPress={() => {
-                  nav.navigate("ProductDetails", {
-                    productId: item.productDetails.id,
-                  });
+                  // nav.navigate("productDetails", {
+                  //   productId: item.productDetails.id,
+                  // });
                 }}
                 onDecrement={async (quantity: number) => {
                   await updateCartItemQuantity(item.id, quantity);
@@ -132,40 +140,19 @@ const MyCartScreen = () => {
                   );
                 }}
                 onDelete={async () => {
+                  setSelectedItem(item.id);
                   setShowBottomSheet(true);
                 }}
               />
             )}
           />
           {cartItems.length > 0 && selectedItems.length > 0 && (
-            <View
-              style={{
-                justifyContent: "flex-end",
-                padding: 16,
-              }}
-            >
-              <AppText
-                text={"Order Info"}
-                customStyle={{
-                  fontSize: 16,
-                  fontFamily: AppFonts.JakartaMedium,
-                  marginBottom: 12,
-                }}
-              />
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  marginBottom: 8,
-                }}
-              >
+            <View style={styles.orderInfoContainer}>
+              <AppText text={"Order Info"} customStyle={styles.orderInfoText} />
+              <View style={[styles.infoContainerRow, { marginBottom: 8 }]}>
                 <AppText
                   text={`Subtotal`}
-                  customStyle={{
-                    fontSize: 12,
-                    fontFamily: AppFonts.JakartaRegular,
-                    color: AppColors.grey150,
-                  }}
+                  customStyle={styles.subTototalText}
                 />
                 <AppText
                   text={`$${cartItems
@@ -176,67 +163,28 @@ const MyCartScreen = () => {
                       0
                     )
                     .toFixed(2)}`}
-                  customStyle={{
-                    fontSize: 14,
-                    fontFamily: AppFonts.JakartaRegular,
-                  }}
+                  customStyle={styles.subTototalText}
                 />
               </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  marginBottom: 8,
-                }}
-              >
+              <View style={[styles.infoContainerRow, { marginBottom: 8 }]}>
                 <AppText
                   text={`Shipping Cost`}
-                  customStyle={{
-                    fontSize: 12,
-                    fontFamily: AppFonts.JakartaRegular,
-                    color: AppColors.grey150,
-                  }}
+                  customStyle={styles.subTototalText}
                 />
-                <AppText
-                  text={`$0.00`}
-                  customStyle={{
-                    fontSize: 14,
-                    fontFamily: AppFonts.JakartaRegular,
-                  }}
-                />
+                <AppText text={`$0.00`} customStyle={styles.subTototalText} />
               </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  marginBottom: 16,
-                }}
-              >
+              <View style={styles.infoContainerRow}>
+                <AppText text={`Total`} customStyle={styles.totalPriceText} />
                 <AppText
-                  text={`Total`}
-                  customStyle={{
-                    fontSize: 16,
-                    fontFamily: AppFonts.JakartaMedium,
-                    color: AppColors.secondary,
-                  }}
-                />
-                <AppText
-                  text={`$${
-                    // only selected items total
-                    cartItems
-                      .filter((item) => selectedItems.includes(item.id))
-                      .reduce(
-                        (total, item) =>
-                          total + item.productDetails.price * item.quantity,
-                        0
-                      )
-                      .toFixed(2)
-                  }`}
-                  customStyle={{
-                    fontSize: 16,
-                    fontFamily: AppFonts.JakartaMedium,
-                    color: AppColors.secondary,
-                  }}
+                  text={`$${cartItems
+                    .filter((item) => selectedItems.includes(item.id))
+                    .reduce(
+                      (total, item) =>
+                        total + item.productDetails.price * item.quantity,
+                      0
+                    )
+                    .toFixed(2)}`}
+                  customStyle={styles.totalPriceText}
                 />
               </View>
               <AppButton
@@ -260,5 +208,29 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  orderInfoContainer: {
+    justifyContent: "flex-end",
+    padding: 16,
+  },
+  orderInfoText: {
+    fontSize: 16,
+    fontFamily: AppFonts.JakartaMedium,
+    marginBottom: 12,
+  },
+  infoContainerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  subTototalText: {
+    fontSize: 12,
+    fontFamily: AppFonts.JakartaRegular,
+    color: AppColors.grey150,
+  },
+  totalPriceText: {
+    fontSize: 16,
+    fontFamily: AppFonts.JakartaMedium,
+    color: AppColors.secondary,
   },
 });
